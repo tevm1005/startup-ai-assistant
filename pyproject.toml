@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "startup-ai-assistant"
+version = "0.1.0"
+description = "Multi-platform AI assistant for startup knowledge management"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+startup-assistant = "src.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

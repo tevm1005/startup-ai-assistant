@@ -1,0 +1,16 @@
+# Core
+sqlalchemy[asyncio]>=2.0
+asyncpg
+alembic
+pydantic-settings
+
+# pgvector
+pgvector
+
+# LLM (choose one)
+# openai
+# anthropic
+
+# Dev
+pytest>=8
+pytest-asyncio

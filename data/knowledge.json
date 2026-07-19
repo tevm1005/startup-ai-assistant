@@ -1,0 +1,22 @@
+[
+  {
+    "content": "O plano básico custa R$ 49,90 por mês e inclui 5GB de armazenamento e suporte por e-mail.",
+    "metadata": {"category": "planos", "tags": ["preco", "basico"]}
+  },
+  {
+    "content": "O plano profissional custa R$ 99,90 por mês e inclui 50GB de armazenamento, suporte prioritário e integrações ilimitadas.",
+    "metadata": {"category": "planos", "tags": ["preco", "profissional"]}
+  },
+  {
+    "content": "O plano enterprise custa R$ 299,90 por mês e inclui armazenamento ilimitado, suporte 24/7 e SLA de 99.9%.",
+    "metadata": {"category": "planos", "tags": ["preco", "enterprise"]}
+  },
+  {
+    "content": "Horário de atendimento: segunda a sexta, das 8h às 18h. Suporte emergencial 24h para planos enterprise.",
+    "metadata": {"category": "suporte", "tags": ["horario", "atendimento"]}
+  },
+  {
+    "content": "Para cancelar sua assinatura, acesse Configurações > Assinatura > Cancelar. O cancelamento é processado em até 48h.",
+    "metadata": {"category": "faq", "tags": ["cancelamento", "assinatura"]}
+  }
+]
