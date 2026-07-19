@@ -1,6 +1,41 @@
 # Startup AI Assistant
 
-Multi-platform AI assistant that reads messages from WhatsApp (phase 1) → Facebook, Instagram, TikTok, queries a knowledge base via pgvector, and replies with startup info.
+Multi-platform AI assistant: reads messages from WhatsApp (phase 1) → Facebook, Instagram, TikTok, queries knowledge base, and replies with startup info.
+
+## Prototype status
+
+The project is early-stage. Many components are stubs — only the in-memory path works:
+
+| Component | Working | Stub |
+|---|---|---|
+| KnowledgeStore (keyword search) | ✅ | |
+| LLMClient (mock) | ✅ | |
+| IngestionPipeline (wires above) | ✅ | |
+| VectorStore (pgvector) | | stub |
+| ResponseGenerator | | stub |
+| WhatsAppAdapter | | stub |
+| seed_knowledge.py | | stub |
+| Alembic migrations dir | | empty |
+
+Enable real LLM by setting `SA_LLM_API_KEY` in `.env` (currently falls back to mock).
+
+## Entrypoints
+
+- **CLI REPL**: `startup-assistant` (defined in `pyproject.toml`) or `python -m src.cli`
+- **IngestionPipeline.run(question)** at `src/ingestion/pipeline.py:15` — main "ask" path
+
+## Commands
+
+```bash
+.venv/bin/pytest tests/ -v                         # all tests
+.venv/bin/pytest tests/test_core.py -v              # focused test
+.venv/bin/pytest tests/ -k "test_core" -v           # keyword filter
+.venv/bin/alembic upgrade head                      # run migrations
+cp .env.example .env && vi .env                     # configure (SA_ prefix)
+python scripts/seed_knowledge.py <file>             # seed vector store (stub)
+```
+
+Use `.venv/bin/pytest`, not bare `pytest`. The `.venv/` is the venv directory.
 
 ## Architecture
 
@@ -9,58 +44,14 @@ Three decoupled pipelines:
 - **Retrieval** — embed question → pgvector similarity search on `knowledge_embeddings`
 - **Response** — prompt + context → LLM → send reply
 
-All platform adapters implement `MessageSource` protocol (`src/core/interfaces.py`).
+Current working path bypasses DB: `IngestionPipeline` uses in-memory `KnowledgeStore` (keyword-based, `src/knowledge/store.py:30`) + mock `LLMClient` (`src/llm/client.py:21`).
 
-## Structure
-
-```
-src/
-├── core/           # interfaces, types (Platform, MessageDirection, etc.)
-├── ingestion/      # ingestion pipeline
-├── retrieval/      # pgvector semantic search
-├── response/       # LLM prompt builder
-├── platforms/      # adapter per platform (whatsapp/, later fb/, ig/, tiktok/)
-├── database/       # SQLAlchemy async models + connection
-│   ├── connection.py   # async engine, session factory, init_db()
-│   ├── models.py       # KnowledgeEntry, Conversation, MessageLog
-```                                                               
-
-## Commands
-
-```bash
-pip install -r requirements.txt          # install deps
-
-source .env.example > .env && vi .env    # configure (all SA_ prefixed)
-
-pytest tests/                            # run tests
-pytest tests/ -k test_core -v            # focused test
-
-alembic upgrade head                     # run migrations
-
-python scripts/seed_knowledge.py <file>  # seed vector store
-```
-
-## Database
-
-- `KnowledgeEntry` — content + embedding + JSONB metadata for vector search
-- `Conversation` — platform thread, linked to messages
-- `MessageLog` — individual messages with direction, status, metadata
-
-## Multi-Agent Workflow
-
-This project uses a planner → implementor → reviewer pipeline:
-
-1. `@planner` — designs step-by-step plan, asks clarifying questions
-2. *(user approves)*
-3. `@implementor` — executes the plan, runs tests, reports
-4. `@reviewer` — checks implementation against plan and conventions
-5. `@supervisor` — orchestrates the full pipeline and tracks state in WORKFLOW_STATE.md
-
-Invoke with: `@supervisor <feature description>`
+Platform adapters implement `MessageSource` protocol from `src/core/interfaces.py:20`.
 
 ## Conventions
 
-- Config via `pydantic-settings`, env prefix `SA_` (see `src/config.py`)
+- Config via `pydantic-settings`, env prefix `SA_` (`src/config.py`)
 - Async everywhere (asyncpg + SQLAlchemy async sessions)
 - New platform = implement `MessageSource` in `src/platforms/<name>/adapter.py`
-- Commit `AGENTS.md` to git
+- No linter/formatter/typechecker configured yet — `pyproject.toml` has no such config
+- All functions should have type hints (code-review skill enforces this)
