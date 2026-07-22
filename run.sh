@@ -3,6 +3,28 @@ set -e
 
 cd "$(dirname "$0")"
 
+# ── First-run setup ──────────────────────────────────────────
+if [ ! -f .env ]; then
+    if [ -f .env.example ]; then
+        cp .env.example .env
+        echo "[ok] created .env from .env.example — edit it to customise settings"
+    else
+        echo "[warn] no .env or .env.example found — using defaults"
+    fi
+fi
+
+# Export env vars from .env (but don't clobber what's already set)
+if [ -f .env ]; then
+    set -a
+    # shellcheck source=/dev/null
+    . .env 2>/dev/null || true
+    set +a
+fi
+
+# Default model names (used by curl pulls below)
+SA_LLM_MODEL="${SA_LLM_MODEL:-llama3.2:1b}"
+SA_EMBEDDING_MODEL="${SA_EMBEDDING_MODEL:-nomic-embed-text}"
+
 # ── PostgreSQL ────────────────────────────────────────────────
 if pg_isready -h /tmp/pgsock &>/dev/null; then
     echo "[ok] PostgreSQL already running"
@@ -23,7 +45,20 @@ else
     echo "[ok] Ollama started"
 fi
 
+# Pull models before starting (idempotent — cached if already present)
+echo "[..] Pulling LLM model: $SA_LLM_MODEL ..."
+curl -s -X POST http://localhost:11434/api/pull \
+  -d "{\"name\":\"$SA_LLM_MODEL\"}" > /dev/null
+echo "[ok] $SA_LLM_MODEL ready"
+
+echo "[..] Pulling embedding model: $SA_EMBEDDING_MODEL ..."
+curl -s -X POST http://localhost:11434/api/pull \
+  -d "{\"name\":\"$SA_EMBEDDING_MODEL\"}" > /dev/null
+echo "[ok] $SA_EMBEDDING_MODEL ready"
+
 export SA_OLLAMA_BASE_URL=http://localhost:11434
+export SA_LLM_MODEL
+export SA_EMBEDDING_MODEL
 
 # ── Mode selection ────────────────────────────────────────────
 MODE="${1:-cli}"

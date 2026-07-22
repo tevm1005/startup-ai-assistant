@@ -45,14 +45,21 @@ class LLMClient:
 
         log.debug("ollama prompt", extra={"model": self.model, "prompt_len": len(prompt)})
 
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(
-                f"{settings.ollama_base_url}/api/generate",
-                json={"model": self.model, "prompt": prompt, "stream": False},
-                timeout=60,
+        try:
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(
+                    f"{settings.ollama_base_url}/api/generate",
+                    json={"model": self.model, "prompt": prompt, "stream": False},
+                    timeout=60,
+                )
+                resp.raise_for_status()
+                answer = resp.json()["response"].strip()
+        except Exception as exc:
+            log.warning(
+                "ollama generate failed, falling back to mock",
+                extra={"model": self.model, "error": str(exc)},
             )
-            resp.raise_for_status()
-            answer = resp.json()["response"].strip()
+            return self._mock(question, context, memory)
 
         log.info("ollama response", extra={"model": self.model, "answer_len": len(answer)})
         return answer

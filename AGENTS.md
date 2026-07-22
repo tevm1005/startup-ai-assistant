@@ -2,24 +2,40 @@
 
 Multi-platform AI assistant: reads messages from WhatsApp (phase 1) → Facebook, Instagram, TikTok, queries knowledge base, and replies with startup info.
 
-## Prototype status
+## Quick start
 
-The project is early-stage. Many components are stubs — only the in-memory path works:
+```bash
+# 1. First run — no .env needed, run.sh creates it for you
+./run.sh
+
+# Or run as API server:
+./run.sh server
+```
+
+Requirements:
+- **PostgreSQL** with pgvector (or let `run.sh` start a local instance from `/tmp/pgdata`)
+- **Ollama** installed → `run.sh` auto-pulls `llama3.2:1b` and `nomic-embed-text` on first run
+- `.venv/` with dependencies (`pip install -r requirements.txt`)
+
+## Prototype status
 
 | Component | Working | Notes |
 |---|---|---|---|
 | KnowledgeStore (keyword search) | ✅ | |
-| LLMClient (mock) | ✅ | |
+| LLMClient (Ollama) | ✅ | Falls back to mock if Ollama is unreachable |
 | IngestionPipeline | ✅ | |
 | ResponseGenerator | ✅ | Delegates to LLMClient |
-| EmbeddingClient | ✅ | Mock (hash-based), real backend not wired |
+| EmbeddingClient (Ollama) | ✅ | Falls back to mock if Ollama is unreachable |
 | VectorStore (pgvector) | ✅ | Uses cosine_distance on `knowledge_embeddings` |
 | seed_knowledge.py | ✅ | Embeds + inserts into pgvector |
 | WhatsAppAdapter | ✅ | httpx-based, needs credentials |
+| FastAPI server | ✅ | `POST /ask`, `POST /webhook/whatsapp` |
+| Conversation memory | ✅ | Configurable max turns, per-conversation |
+| Smart PDF chunking | ✅ | Paragraph-aware with overlap |
+| Content hashing | ✅ | SHA256 skips unchanged PDFs on re-ingest |
 | Alembic migration | ✅ | Initial schema created |
-| Alembic migrations dir | ✅ | Has `env.py` for async |
 
-Enable real LLM by setting `SA_LLM_API_KEY` in `.env` (currently falls back to mock).
+Ollama is the default LLM backend. Set `SA_OLLAMA_BASE_URL` in `.env` to change endpoint.
 
 ## Entrypoints
 
