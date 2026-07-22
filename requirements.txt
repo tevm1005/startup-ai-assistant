@@ -11,6 +11,18 @@ pgvector
 # openai
 # anthropic
 
+# HTTP / Web server
+httpx
+fastapi>=0.110
+uvicorn[standard]
+
+# PDF
+pypdf
+fpdf2
+
+# Image
+Pillow
+
 # Dev
 pytest>=8
 pytest-asyncio

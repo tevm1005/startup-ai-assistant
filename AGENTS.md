@@ -6,16 +6,18 @@ Multi-platform AI assistant: reads messages from WhatsApp (phase 1) → Facebook
 
 The project is early-stage. Many components are stubs — only the in-memory path works:
 
-| Component | Working | Stub |
-|---|---|---|
+| Component | Working | Notes |
+|---|---|---|---|
 | KnowledgeStore (keyword search) | ✅ | |
 | LLMClient (mock) | ✅ | |
-| IngestionPipeline (wires above) | ✅ | |
-| VectorStore (pgvector) | | stub |
-| ResponseGenerator | | stub |
-| WhatsAppAdapter | | stub |
-| seed_knowledge.py | | stub |
-| Alembic migrations dir | | empty |
+| IngestionPipeline | ✅ | |
+| ResponseGenerator | ✅ | Delegates to LLMClient |
+| EmbeddingClient | ✅ | Mock (hash-based), real backend not wired |
+| VectorStore (pgvector) | ✅ | Uses cosine_distance on `knowledge_embeddings` |
+| seed_knowledge.py | ✅ | Embeds + inserts into pgvector |
+| WhatsAppAdapter | ✅ | httpx-based, needs credentials |
+| Alembic migration | ✅ | Initial schema created |
+| Alembic migrations dir | ✅ | Has `env.py` for async |
 
 Enable real LLM by setting `SA_LLM_API_KEY` in `.env` (currently falls back to mock).
 

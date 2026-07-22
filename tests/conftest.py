@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 
@@ -12,4 +14,5 @@ def sample_message():
         direction=MessageDirection.INBOUND,
         sender="+5511999999999",
         content="Qual é o preço do plano básico?",
+        timestamp=datetime.now(),
     )

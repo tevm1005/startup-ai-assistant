@@ -1,0 +1,7 @@
+[
+  {"match": "Classic Oatmeal", "images": ["data/images/classic.png"]},
+  {"match": "Lavender Oatmeal", "images": ["data/images/lavender.png"]},
+  {"match": "Honey", "images": ["data/images/honey.png"]},
+  {"match": "Citrus Burst", "images": ["data/images/citrus.png"]},
+  {"match": "Tea Tree", "images": ["data/images/tea_tree.png"]}
+]
